@@ -17,12 +17,12 @@ on:
 # Configure constants for this workflow.
 env:
   # The base filename of the binary produced by `cargo build`.
-  BINARY: wheel-game
+  BINARY: wheel-escape
   # The name to use for the packaged application produced by this workflow.
-  PACKAGE_NAME: wheel-game
+  PACKAGE_NAME: wheel-escape
   # The itch.io page to upload to, in the format: `user-name/project-name`.
   # Comment this out to disable.
-  ITCH_TARGET: inspiredjourneys/wheel-game
+  ITCH_TARGET: inspiredjourneys/wheel-escape
   # The organization or author that owns the rights to the game.
   OWNER: inspiredjourneys
   # The path to the assets directory.

@@ -1,5 +1,5 @@
 [package]
-name = "wheel-game"
+name = "wheel-escape"
 authors = ["Steve Pryde <steve@stevepryde.com>"]
 version = "0.1.0"
 edition = "2021"
