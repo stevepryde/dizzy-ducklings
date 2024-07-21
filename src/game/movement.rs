@@ -149,7 +149,6 @@ fn detect_ground(
 
         // Did we hit our head?
         if output.desired_translation.y > 0.0 && output.effective_translation.y <= 0.5 {
-            log::info!("Bumped head!");
             velocity.y = 0.0;
         }
     }

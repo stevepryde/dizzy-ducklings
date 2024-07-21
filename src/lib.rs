@@ -61,7 +61,7 @@ impl Plugin for AppPlugin {
         app.add_plugins(TilemapPlugin)
             .add_plugins(TiledMapPlugin)
             .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0))
-            .add_plugins(RapierDebugRenderPlugin::default())
+            // .add_plugins(RapierDebugRenderPlugin::default())
             .add_plugins(WorldInspectorPlugin::new());
 
         // Add game plugins.
