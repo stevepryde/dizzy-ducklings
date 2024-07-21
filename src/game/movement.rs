@@ -3,7 +3,7 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::{log::tracing_subscriber::fmt::time, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::{
     control::{KinematicCharacterController, KinematicCharacterControllerOutput},
     geometry::Collider,

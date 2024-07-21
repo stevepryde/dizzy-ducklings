@@ -3,8 +3,6 @@
 use bevy::prelude::*;
 use bevy_ecs_tiled::prelude::*;
 
-use crate::AppSet;
-
 use super::player::SpawnPlayer;
 
 pub(super) fn plugin(app: &mut App) {
