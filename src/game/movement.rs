@@ -3,7 +3,8 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
+use bevy_rapier2d::control::KinematicCharacterController;
 
 use crate::AppSet;
 
@@ -16,12 +17,10 @@ pub(super) fn plugin(app: &mut App) {
     );
 
     // Apply movement based on controls.
-    app.register_type::<(Movement, WrapWithinWindow)>();
+    app.register_type::<Movement>();
     app.add_systems(
-        Update,
-        (apply_movement, wrap_within_window)
-            .chain()
-            .in_set(AppSet::Update),
+        FixedUpdate,
+        (apply_movement,).chain().in_set(AppSet::Update),
     );
 }
 
@@ -70,27 +69,15 @@ pub struct Movement {
 
 fn apply_movement(
     time: Res<Time>,
-    mut movement_query: Query<(&MovementController, &Movement, &mut Transform)>,
+    mut movement_query: Query<(
+        &MovementController,
+        &Movement,
+        &mut KinematicCharacterController,
+    )>,
 ) {
-    for (controller, movement, mut transform) in &mut movement_query {
+    for (controller, movement, mut char_controller) in &mut movement_query {
         let velocity = movement.speed * controller.0;
-        transform.translation += velocity.extend(0.0) * time.delta_seconds();
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct WrapWithinWindow;
-
-fn wrap_within_window(
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    mut wrap_query: Query<&mut Transform, With<WrapWithinWindow>>,
-) {
-    let size = window_query.single().size() + 256.0;
-    let half_size = size / 2.0;
-    for mut transform in &mut wrap_query {
-        let position = transform.translation.xy();
-        let wrapped = (position + half_size).rem_euclid(size) - half_size;
-        transform.translation = wrapped.extend(transform.translation.z);
+        let v3 = velocity.extend(0.0) * time.delta_seconds();
+        char_controller.translation = Some(Vec2::new(v3.x, v3.y));
     }
 }

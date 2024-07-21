@@ -1,14 +1,16 @@
 //! Spawn the player.
 
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{Movement, MovementController, WrapWithinWindow},
+        movement::{Movement, MovementController},
     },
     screen::Screen,
+    CameraMarker,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -37,22 +39,33 @@ fn spawn_player(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    commands.spawn((
-        Name::new("Player"),
-        Player,
-        SpriteBundle {
-            texture: image_handles[&ImageKey::Ducky].clone_weak(),
-            transform: Transform::from_scale(Vec2::splat(8.0).extend(1.0)),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: player_animation.get_atlas_index(),
-        },
-        MovementController::default(),
-        Movement { speed: 420.0 },
-        WrapWithinWindow,
-        player_animation,
-        StateScoped(Screen::Playing),
-    ));
+    commands
+        .spawn((
+            Name::new("Player"),
+            Player,
+            SpatialBundle {
+                transform: Transform::from_xyz(48.0, 48.0, 0.),
+                ..default()
+            },
+            MovementController::default(),
+            Movement { speed: 420.0 },
+            StateScoped(Screen::Playing),
+            Collider::capsule_y(4.0, 8.0),
+            RigidBody::KinematicPositionBased,
+            KinematicCharacterController::default(),
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                SpriteBundle {
+                    texture: image_handles[&ImageKey::Ducky].clone_weak(),
+                    transform: Transform::from_xyz(0.0, 4.0, 0.0),
+                    ..Default::default()
+                },
+                TextureAtlas {
+                    layout: texture_atlas_layout.clone(),
+                    index: player_animation.get_atlas_index(),
+                },
+                player_animation,
+            ));
+        });
 }

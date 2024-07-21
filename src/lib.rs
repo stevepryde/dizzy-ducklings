@@ -8,7 +8,11 @@ use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
     prelude::*,
+    render::camera::ScalingMode,
 };
+use bevy_ecs_tiled::prelude::*;
+use bevy_ecs_tilemap::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 pub struct AppPlugin;
 
@@ -53,6 +57,12 @@ impl Plugin for AppPlugin {
         );
 
         // Add other plugins.
+        app.add_plugins(TilemapPlugin)
+            .add_plugins(TiledMapPlugin)
+            .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0))
+            .add_plugins(RapierDebugRenderPlugin::default());
+
+        // Add game plugins.
         app.add_plugins((game::plugin, screen::plugin, ui::plugin));
 
         // Enable dev tools for dev builds.
@@ -74,10 +84,19 @@ enum AppSet {
     Update,
 }
 
+#[derive(Component)]
+pub struct CameraMarker;
+
 fn spawn_camera(mut commands: Commands) {
+    let mut camera_bundle = Camera2dBundle::default();
+    camera_bundle.projection.scaling_mode = ScalingMode::AutoMax {
+        max_width: 960.,
+        max_height: 540.,
+    };
+
     commands.spawn((
         Name::new("Camera"),
-        Camera2dBundle::default(),
+        camera_bundle,
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon
@@ -85,5 +104,6 @@ fn spawn_camera(mut commands: Commands) {
         // [ui node outlines](https://bevyengine.org/news/bevy-0-14/#ui-node-outline-gizmos)
         // for debugging. So it's good to have this here for future-proofing.
         IsDefaultUiCamera,
+        CameraMarker,
     ));
 }

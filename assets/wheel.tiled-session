@@ -1,0 +1,23 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Tileset1.tsx": {
+            "dynamicWrapping": false
+        }
+    },
+    "map.height": 51,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 51,
+    "openFiles": [
+    ],
+    "project": "wheel.tiled-project",
+    "recentFiles": [
+    ]
+}
