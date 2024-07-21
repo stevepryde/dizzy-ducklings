@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{AppSet, CameraMarker};
 
-use super::spawn::player::{self, Player};
+use super::spawn::player::Player;
 
 pub(super) fn plugin(app: &mut App) {
     // Apply movement based on controls.

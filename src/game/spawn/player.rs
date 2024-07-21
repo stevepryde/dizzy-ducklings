@@ -7,7 +7,6 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        ground::{GroundCheckBundle, IsOnGround},
         movement::{Movement, MovementController},
     },
     screen::Screen,
@@ -31,6 +30,16 @@ pub struct Velocity {
     pub x: f32,
     pub y: f32,
 }
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
+#[reflect(Component)]
+pub struct IsOnGround {
+    pub is_on_ground: bool,
+}
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
+#[reflect(Component)]
+pub struct SpriteMarker;
 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
@@ -83,16 +92,7 @@ fn spawn_player(
                     index: player_animation.get_atlas_index(),
                 },
                 player_animation,
+                SpriteMarker,
             ));
-
-            // // Spawn ground check bundle.
-            // parent.spawn(GroundCheckBundle {
-            //     spatial: SpatialBundle {
-            //         transform: Transform::from_xyz(0.0, -12.0, 0.0),
-            //         ..default()
-            //     },
-            //     collider: Collider::cuboid(6.0, 2.0),
-            //     ..default()
-            // });
         });
 }

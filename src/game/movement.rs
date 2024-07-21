@@ -11,7 +11,7 @@ pub const TERMINAL_VELOCITY: f32 = -420.0;
 
 use crate::AppSet;
 
-use super::{ground::IsOnGround, spawn::player::Velocity};
+use super::spawn::player::{IsOnGround, Player, SpriteMarker, Velocity};
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -23,6 +23,10 @@ pub(super) fn plugin(app: &mut App) {
 
     // Apply movement based on controls.
     app.register_type::<Movement>();
+    app.add_systems(
+        Update,
+        (apply_sprite_direction,).chain().in_set(AppSet::Update),
+    );
     app.add_systems(
         FixedUpdate,
         (apply_movement, detect_ground)
@@ -136,6 +140,21 @@ fn detect_ground(
         if output.desired_translation.y > 0.0 && output.effective_translation.y <= 0.0 {
             log::info!("Bumped head!");
             velocity.y = 0.0;
+        }
+    }
+}
+
+fn apply_sprite_direction(
+    mut query_sprite: Query<(&Parent, &mut Transform), (With<SpriteMarker>, Without<Player>)>,
+    query_player: Query<&MovementController, With<Player>>,
+) {
+    for (parent, mut transform) in &mut query_sprite.iter_mut() {
+        if let Ok(movement) = query_player.get(parent.get()) {
+            if movement.0.x < 0.0 {
+                transform.scale = Vec3::new(-1.0, 1.0, 1.0);
+            } else if movement.0.x > 0.0 {
+                transform.scale = Vec3::new(1.0, 1.0, 1.0);
+            }
         }
     }
 }
