@@ -3,15 +3,21 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::prelude::*;
-use bevy_rapier2d::control::{KinematicCharacterController, KinematicCharacterControllerOutput};
+use bevy::{log::tracing_subscriber::fmt::time, prelude::*};
+use bevy_rapier2d::{
+    control::{KinematicCharacterController, KinematicCharacterControllerOutput},
+    geometry::Collider,
+};
 
 pub const GRAVITY: f32 = -9.81 * 32.0 * 4.0;
 pub const TERMINAL_VELOCITY: f32 = -420.0;
 
 use crate::AppSet;
 
-use super::spawn::player::{IsOnGround, Player, SpriteMarker, Velocity};
+use super::spawn::{
+    level::LevelMarker,
+    player::{IsOnGround, Player, SpriteMarker, Velocity},
+};
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -29,7 +35,12 @@ pub(super) fn plugin(app: &mut App) {
     );
     app.add_systems(
         FixedUpdate,
-        (apply_movement, detect_ground)
+        (
+            apply_movement,
+            detect_ground,
+            rotate_world,
+            read_character_controller_collisions,
+        )
             .chain()
             .in_set(AppSet::Update),
     );
@@ -131,13 +142,13 @@ fn detect_ground(
         if !is_on_ground.is_on_ground {
             is_on_ground.is_on_ground = output.grounded
                 && output.desired_translation.y < 0.0
-                && output.effective_translation.y >= 0.0;
+                && output.effective_translation.y >= -0.5;
         } else if !output.grounded {
             is_on_ground.is_on_ground = false;
         }
 
         // Did we hit our head?
-        if output.desired_translation.y > 0.0 && output.effective_translation.y <= 0.0 {
+        if output.desired_translation.y > 0.0 && output.effective_translation.y <= 0.5 {
             log::info!("Bumped head!");
             velocity.y = 0.0;
         }
@@ -154,6 +165,37 @@ fn apply_sprite_direction(
                 transform.scale = Vec3::new(-1.0, 1.0, 1.0);
             } else if movement.0.x > 0.0 {
                 transform.scale = Vec3::new(1.0, 1.0, 1.0);
+            }
+        }
+    }
+}
+
+fn rotate_world(time: Res<Time>, mut query: Query<&mut Transform, With<LevelMarker>>) {
+    for mut transform in query.iter_mut() {
+        transform.rotate(Quat::from_rotation_z(f32::to_radians(
+            5. * time.delta_seconds(),
+        )));
+    }
+}
+
+fn read_character_controller_collisions(
+    time: Res<Time>,
+    mut character_controller_outputs: Query<(
+        &GlobalTransform,
+        &mut Transform,
+        &KinematicCharacterControllerOutput,
+    )>,
+    colliders: Query<(&GlobalTransform, &Collider)>,
+) {
+    for (global_transform, mut transform, output) in character_controller_outputs.iter_mut() {
+        for collision in &output.collisions {
+            // move the ball away from the collision.
+            if let Ok((collider_tf, _)) = colliders.get(collision.entity) {
+                let delta = global_transform.translation() - collider_tf.translation();
+                let distance = delta.length();
+                let direction = delta.normalize();
+                let movement = direction * distance;
+                transform.translation += movement * time.delta_seconds();
             }
         }
     }

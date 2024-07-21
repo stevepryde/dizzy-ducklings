@@ -9,7 +9,6 @@ use super::player::SpawnPlayer;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level);
-    app.add_systems(FixedUpdate, (rotate_world,).chain().in_set(AppSet::Update));
 }
 
 #[derive(Event, Debug)]
@@ -49,10 +48,4 @@ fn spawn_level(
         });
 
     commands.trigger(SpawnPlayer);
-}
-
-fn rotate_world(time: Res<Time>, mut query: Query<&mut Transform, With<LevelMarker>>) {
-    for mut transform in query.iter_mut() {
-        transform.rotate(Quat::from_rotation_z(f32::to_radians(time.delta_seconds())));
-    }
 }

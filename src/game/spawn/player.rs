@@ -73,7 +73,7 @@ fn spawn_player(
             Collider::ball(11.5),
             // Collider::cuboid(9.0, 11.5),
             Friction::coefficient(0.0),
-            // Restitution::coefficient(0.0),
+            Restitution::coefficient(1.0),
             RigidBody::KinematicPositionBased,
             KinematicCharacterController {
                 offset: CharacterLength::Absolute(1.0),
