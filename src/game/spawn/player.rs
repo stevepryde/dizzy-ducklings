@@ -7,10 +7,10 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
+        ground::{GroundCheckBundle, IsOnGround},
         movement::{Movement, MovementController},
     },
     screen::Screen,
-    CameraMarker,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -24,6 +24,13 @@ pub struct SpawnPlayer;
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
 pub struct Player;
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
+#[reflect(Component)]
+pub struct Velocity {
+    pub x: f32,
+    pub y: f32,
+}
 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
@@ -47,12 +54,22 @@ fn spawn_player(
                 transform: Transform::from_xyz(48.0, 48.0, 0.),
                 ..default()
             },
+            Velocity::default(),
             MovementController::default(),
-            Movement { speed: 420.0 },
+            Movement {
+                speed: 200.0,
+                jump_speed: 400.0,
+            },
             StateScoped(Screen::Playing),
-            Collider::capsule_y(4.0, 8.0),
+            Collider::cuboid(9.0, 11.5),
+            Friction::coefficient(0.0),
+            // Restitution::coefficient(0.0),
             RigidBody::KinematicPositionBased,
-            KinematicCharacterController::default(),
+            KinematicCharacterController {
+                offset: CharacterLength::Absolute(1.0),
+                ..default()
+            },
+            IsOnGround::default(),
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -67,5 +84,15 @@ fn spawn_player(
                 },
                 player_animation,
             ));
+
+            // // Spawn ground check bundle.
+            // parent.spawn(GroundCheckBundle {
+            //     spatial: SpatialBundle {
+            //         transform: Transform::from_xyz(0.0, -12.0, 0.0),
+            //         ..default()
+            //     },
+            //     collider: Collider::cuboid(6.0, 2.0),
+            //     ..default()
+            // });
         });
 }
