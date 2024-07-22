@@ -6,7 +6,7 @@ use super::spawn::player::Player;
 
 pub(super) fn plugin(app: &mut App) {
     // Apply movement based on controls.
-    // app.add_systems(FixedUpdate, (move_camera,).chain().in_set(AppSet::Update));
+    app.add_systems(Update, (move_camera,).chain().in_set(AppSet::Update));
 }
 
 fn move_camera(
