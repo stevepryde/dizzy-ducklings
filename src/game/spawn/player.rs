@@ -15,6 +15,8 @@ use crate::{
     screen::Screen,
 };
 
+use super::level::PlayerSpawnPoint;
+
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player);
     app.register_type::<Player>();
@@ -49,6 +51,7 @@ fn spawn_player(
     mut commands: Commands,
     image_handles: Res<HandleMap<ImageKey>>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    spawn_point: Query<&Transform, With<PlayerSpawnPoint>>,
 ) {
     // A texture atlas is a way to split one image with a grid into multiple sprites.
     // By attaching it to a [`SpriteBundle`] and providing an index, we can specify which section of the image we want to see.
@@ -58,9 +61,10 @@ fn spawn_player(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    // TODO: set player start pos in tilemap.
-    let startx = 48.0;
-    let starty = 48.0;
+    let spawn_point = spawn_point.single();
+    let startx = spawn_point.translation.x;
+    let starty = spawn_point.translation.y;
+    log::info!("SPAWN PLAYER AT: {}, {}", startx, starty);
 
     commands
         .spawn((

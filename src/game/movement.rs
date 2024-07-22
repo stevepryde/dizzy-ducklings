@@ -14,9 +14,12 @@ pub const TERMINAL_VELOCITY: f32 = -420.0;
 
 use crate::AppSet;
 
-use super::spawn::{
-    level::LevelMarker,
-    player::{IsOnGround, Player, SpriteMarker, Velocity},
+use super::{
+    frames::FrameCounter,
+    spawn::{
+        level::{EndLevel, LevelFinishPoint, LevelMarker},
+        player::{IsOnGround, Player, SpriteMarker, Velocity},
+    },
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -46,6 +49,7 @@ pub(super) fn plugin(app: &mut App) {
             detect_ground,
             rotate_world,
             read_character_controller_collisions,
+            check_level_end,
         )
             .chain()
             .in_set(AppSet::Update),
@@ -276,6 +280,27 @@ fn update_sprite_transform(
 
             // Set the new sprite transform to match the parent's visual transform relative to the parent transform.
             transform.translation = new_offset.extend(0.);
+        }
+    }
+}
+
+fn check_level_end(
+    mut commands: Commands,
+    frame_counter: Res<FrameCounter>,
+    player_query: Query<&GlobalTransform, (With<Player>, Without<LevelFinishPoint>)>,
+    end_level_pos: Query<&GlobalTransform, (With<LevelFinishPoint>, Without<Player>)>,
+) {
+    if frame_counter.count < 10 {
+        return;
+    }
+
+    for player_tf in player_query.iter() {
+        for end_tf in end_level_pos.iter() {
+            let distance = player_tf.translation().distance(end_tf.translation());
+            if distance < 16.0 {
+                log::info!("Level end reached!");
+                commands.trigger(EndLevel);
+            }
         }
     }
 }
