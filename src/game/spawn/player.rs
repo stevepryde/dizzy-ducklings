@@ -7,7 +7,10 @@ use crate::{
     game::{
         animation::PlayerAnimation,
         assets::{HandleMap, ImageKey},
-        movement::{Movement, MovementController},
+        movement::{
+            Movement, MovementController, PreviousPhysicalTranslation, SpriteOffset,
+            VisualTranslation,
+        },
     },
     screen::Screen,
 };
@@ -55,12 +58,16 @@ fn spawn_player(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
+    // TODO: set player start pos in tilemap.
+    let startx = 48.0;
+    let starty = 48.0;
+
     commands
         .spawn((
             Name::new("Player"),
             Player,
             SpatialBundle {
-                transform: Transform::from_xyz(48.0, 48.0, 0.),
+                transform: Transform::from_xyz(startx, starty, 0.),
                 ..default()
             },
             Velocity::default(),
@@ -71,15 +78,21 @@ fn spawn_player(
             },
             StateScoped(Screen::Playing),
             Collider::ball(11.5),
-            // Collider::cuboid(9.0, 11.5),
             Friction::coefficient(0.0),
             Restitution::coefficient(1.0),
             RigidBody::KinematicPositionBased,
             KinematicCharacterController {
                 offset: CharacterLength::Absolute(1.0),
+                // Don't allow climbing slopes larger than this.
+                max_slope_climb_angle: 30_f32.to_radians(),
+                // Automatically slide down slopes smaller than this.
+                min_slope_slide_angle: 10_f32.to_radians(),
                 ..default()
             },
             IsOnGround::default(),
+            // TODO: set this to current player pos.
+            PreviousPhysicalTranslation(Vec2::new(startx, starty)),
+            VisualTranslation(Vec2::new(startx, starty)),
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -93,6 +106,7 @@ fn spawn_player(
                     index: player_animation.get_atlas_index(),
                 },
                 player_animation,
+                SpriteOffset(Vec2::new(0.0, 4.0)),
                 SpriteMarker,
             ));
         });

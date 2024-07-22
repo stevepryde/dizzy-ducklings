@@ -24,7 +24,13 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<MovementController>();
     app.add_systems(
         Update,
-        record_movement_controller.in_set(AppSet::RecordInput),
+        (
+            update_rendered_transform,
+            update_sprite_transform,
+            record_movement_controller,
+        )
+            .chain()
+            .in_set(AppSet::RecordInput),
     );
 
     // Apply movement based on controls.
@@ -96,12 +102,21 @@ fn apply_movement(
         &MovementController,
         &Movement,
         &mut Velocity,
+        &Transform,
+        &mut PreviousPhysicalTranslation,
         &mut KinematicCharacterController,
         &IsOnGround,
     )>,
 ) {
-    for (controller, movement, mut velocity, mut char_controller, is_on_ground) in
-        &mut movement_query
+    for (
+        controller,
+        movement,
+        mut velocity,
+        transform,
+        mut prev_translation,
+        mut char_controller,
+        is_on_ground,
+    ) in &mut movement_query
     {
         // X velocity doesn't accumulate.
         velocity.x = movement.speed * controller.0.x;
@@ -125,6 +140,9 @@ fn apply_movement(
             velocity.y = TERMINAL_VELOCITY;
         }
 
+        // Save previous pos.
+        prev_translation.0 = transform.translation.truncate();
+
         char_controller.translation =
             Some(Vec2::new(velocity.x, velocity.y) * time.delta_seconds());
     }
@@ -142,7 +160,7 @@ fn detect_ground(
         if !is_on_ground.is_on_ground {
             is_on_ground.is_on_ground = output.grounded
                 && output.desired_translation.y < 0.0
-                && output.effective_translation.y >= -0.5;
+                && output.effective_translation.y >= -1.0;
         } else if !output.grounded {
             is_on_ground.is_on_ground = false;
         }
@@ -192,10 +210,72 @@ fn read_character_controller_collisions(
             if let Ok((collider_tf, _)) = colliders.get(collision.entity) {
                 let delta = global_transform.translation() - collider_tf.translation();
                 let distance = delta.length();
-                let direction = delta.normalize();
-                let movement = direction * distance;
-                transform.translation += movement * time.delta_seconds();
+                if distance < 64.0 {
+                    let direction = delta.normalize();
+                    let movement = direction * (64.0 - distance);
+                    transform.translation += movement * time.delta_seconds();
+                }
             }
+        }
+    }
+}
+
+/// The value [`PhysicalTranslation`] had in the last fixed timestep.
+/// Used for interpolation in the `update_rendered_transform` system.
+#[derive(Debug, Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
+pub struct PreviousPhysicalTranslation(pub Vec2);
+
+#[derive(Debug, Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
+pub struct VisualTranslation(pub Vec2);
+
+fn update_rendered_transform(
+    fixed_time: Res<Time<Fixed>>,
+    mut query: Query<(
+        &mut VisualTranslation,
+        &Transform,
+        &PreviousPhysicalTranslation,
+    )>,
+) {
+    for (mut visual, current_physical_translation, previous_physical_translation) in
+        query.iter_mut()
+    {
+        let previous = previous_physical_translation.0;
+        let current = current_physical_translation.translation.truncate();
+        // The overstep fraction is a value between 0 and 1 that tells us how far we are between two fixed timesteps.
+        let alpha = fixed_time.overstep_fraction();
+
+        let rendered_translation = previous.lerp(current, alpha);
+        visual.0 = rendered_translation;
+    }
+}
+
+#[derive(Debug, Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
+pub struct SpriteOffset(pub Vec2);
+
+/// Adjust sprite pos to match the visual transform.
+///
+/// The way this works is as follows:
+/// - Put a PreviousPhysicalTranslation component on the main parent entity.
+/// - Put a VisualTranslation component on the main parent entity.
+/// - Update PreviousPhysicalTranslation with the current physical translation in the fixed update.
+/// - Put the sprite entity as a child of the main entity.
+/// - Put a SpriteMarker component on the sprite entity.
+/// - Put a SpriteOffset component on the sprite entity if you want to offset the sprite from the visual transform.
+///
+/// Then this system will update the sprite's transform to match the visual transform.
+fn update_sprite_transform(
+    mut sprite_query: Query<(&Parent, &mut Transform, Option<&SpriteOffset>), With<SpriteMarker>>,
+    parent_query: Query<(&Transform, &VisualTranslation), Without<SpriteMarker>>,
+) {
+    for (parent, mut transform, sprite_offset) in sprite_query.iter_mut() {
+        if let Ok((parent_transform, visual)) = parent_query.get(parent.get()) {
+            let mut new_offset = visual.0 - parent_transform.translation.truncate();
+            if let Some(offset) = sprite_offset {
+                new_offset += offset.0;
+            }
+
+            // Set the new sprite transform to match the parent's visual transform relative to the parent transform.
+            transform.translation = new_offset.extend(0.);
         }
     }
 }

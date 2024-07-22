@@ -3,21 +3,36 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "level1.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "Tileset1.tsx": {
-            "dynamicWrapping": false
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level1.tmx": {
+            "scale": 1,
+            "selectedLayer": -1,
+            "viewCenter": {
+                "x": 311.5,
+                "y": 337
+            }
         }
     },
     "map.height": 51,
     "map.lastUsedFormat": "tmx",
     "map.width": 51,
     "openFiles": [
+        "level1.tmx",
+        "Tileset1.tsx"
     ],
     "project": "wheel.tiled-project",
     "recentFiles": [
+        "Tileset1.tsx",
+        "level1.tmx"
     ]
 }
