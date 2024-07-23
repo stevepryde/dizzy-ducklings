@@ -78,7 +78,7 @@ fn trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimati
 
 /// Component that tracks player's animation state.
 /// It is tightly bound to the texture atlas we use.
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct PlayerAnimation {
     timer: Timer,
@@ -86,7 +86,7 @@ pub struct PlayerAnimation {
     state: PlayerAnimationState,
 }
 
-#[derive(Reflect, PartialEq)]
+#[derive(Reflect, PartialEq, Clone, Copy)]
 pub enum PlayerAnimationState {
     Idling,
     Walking,

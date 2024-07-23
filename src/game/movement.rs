@@ -16,7 +16,9 @@ use crate::AppSet;
 
 use super::{
     frames::FrameCounter,
+    score::ChickCollected,
     spawn::{
+        chick::Chick,
         level::{EndLevel, LevelFinishPoint, LevelMarker},
         player::{IsOnGround, Player, SpriteMarker, Velocity},
     },
@@ -45,6 +47,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         FixedUpdate,
         (
+            save_prev_translation,
             apply_movement,
             detect_ground,
             rotate_world,
@@ -106,21 +109,12 @@ fn apply_movement(
         &MovementController,
         &Movement,
         &mut Velocity,
-        &Transform,
-        &mut PreviousPhysicalTranslation,
         &mut KinematicCharacterController,
         &IsOnGround,
     )>,
 ) {
-    for (
-        controller,
-        movement,
-        mut velocity,
-        transform,
-        mut prev_translation,
-        mut char_controller,
-        is_on_ground,
-    ) in &mut movement_query
+    for (controller, movement, mut velocity, mut char_controller, is_on_ground) in
+        movement_query.iter_mut()
     {
         // X velocity doesn't accumulate.
         velocity.x = movement.speed * controller.0.x;
@@ -144,11 +138,16 @@ fn apply_movement(
             velocity.y = TERMINAL_VELOCITY;
         }
 
-        // Save previous pos.
-        prev_translation.0 = transform.translation.truncate();
-
         char_controller.translation =
             Some(Vec2::new(velocity.x, velocity.y) * time.delta_seconds());
+    }
+}
+
+fn save_prev_translation(
+    mut movement_query: Query<(&Transform, &mut PreviousPhysicalTranslation)>,
+) {
+    for (transform, mut prev_translation) in movement_query.iter_mut() {
+        prev_translation.0 = transform.translation.truncate();
     }
 }
 
@@ -201,23 +200,29 @@ fn rotate_world(time: Res<Time>, mut query: Query<&mut Transform, With<LevelMark
 
 fn read_character_controller_collisions(
     time: Res<Time>,
+    mut commands: Commands,
     mut character_controller_outputs: Query<(
         &GlobalTransform,
         &mut Transform,
         &KinematicCharacterControllerOutput,
     )>,
-    colliders: Query<(&GlobalTransform, &Collider)>,
+    colliders: Query<(&GlobalTransform, &Collider, Option<&Chick>)>,
 ) {
     for (global_transform, mut transform, output) in character_controller_outputs.iter_mut() {
         for collision in &output.collisions {
             // move the ball away from the collision.
-            if let Ok((collider_tf, _)) = colliders.get(collision.entity) {
-                let delta = global_transform.translation() - collider_tf.translation();
-                let distance = delta.length();
-                if distance < 64.0 {
-                    let direction = delta.normalize();
-                    let movement = direction * (64.0 - distance);
-                    transform.translation += movement * time.delta_seconds();
+            if let Ok((collider_tf, _collider, is_chick)) = colliders.get(collision.entity) {
+                if is_chick.is_some() {
+                    // Collect chick.
+                    commands.trigger(ChickCollected(collision.entity));
+                } else {
+                    let delta = global_transform.translation() - collider_tf.translation();
+                    let distance = delta.length();
+                    if distance < 64.0 {
+                        let direction = delta.normalize();
+                        let movement = direction * (64.0 - distance);
+                        transform.translation += movement * time.delta_seconds();
+                    }
                 }
             }
         }

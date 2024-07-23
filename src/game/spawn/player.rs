@@ -94,7 +94,6 @@ fn spawn_player(
                 ..default()
             },
             IsOnGround::default(),
-            // TODO: set this to current player pos.
             PreviousPhysicalTranslation(Vec2::new(startx, starty)),
             VisualTranslation(Vec2::new(startx, starty)),
         ))

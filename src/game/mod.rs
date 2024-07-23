@@ -8,6 +8,7 @@ pub mod audio;
 pub mod camera;
 pub mod frames;
 mod movement;
+pub mod score;
 pub mod spawn;
 
 pub(super) fn plugin(app: &mut App) {
@@ -19,5 +20,6 @@ pub(super) fn plugin(app: &mut App) {
         spawn::plugin,
         camera::plugin,
         frames::plugin,
+        score::plugin,
     ));
 }

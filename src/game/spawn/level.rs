@@ -3,9 +3,15 @@
 use bevy::prelude::*;
 use bevy_ecs_tiled::prelude::*;
 
-use crate::{game::frames::ResetFrameCounter, screen::Screen};
+use crate::{
+    game::{frames::ResetFrameCounter, score::Score},
+    screen::Screen,
+};
 
-use super::player::SpawnPlayer;
+use super::{
+    chick::{Chick, SpawnChick},
+    player::{Player, SpawnPlayer},
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(start_new_game);
@@ -40,11 +46,17 @@ fn spawn_level(
     asset_server: ResMut<AssetServer>,
     current_level: Res<CurrentLevel>,
     levels: Res<Levels>,
+    mut score: ResMut<Score>,
 ) {
     let level = levels.current(*current_level).unwrap();
     let mapx = level.size.x as f32 * 16. - 16.;
     let mapy = level.size.y as f32 * 16. - 16.;
     let map_handle: Handle<TiledMap> = asset_server.load(&level.map);
+
+    // Set up score details.
+    score.score = 0;
+    score.chicks_total = level.chick_spawn_points.len() as u32;
+    score.chicks_collected = 0;
 
     commands
         .spawn((
@@ -79,26 +91,27 @@ fn spawn_level(
                 },
             ));
 
-            // Set level finish point.
-            parent.spawn((
-                LevelFinishPoint,
-                SpatialBundle {
-                    transform: Transform::from_xyz(
-                        level.end_tile.x as f32 * 32.,
-                        level.end_tile.y as f32 * 32.,
-                        0.,
-                    ),
-                    ..default()
-                },
-            ));
+            for p in &level.chick_spawn_points {
+                parent.spawn((
+                    ChickSpawnPoint,
+                    SpatialBundle {
+                        transform: Transform::from_xyz(p.x as f32 * 32., p.y as f32 * 32., 0.),
+                        ..default()
+                    },
+                ));
+            }
         });
 
     commands.trigger(ResetFrameCounter);
     commands.trigger(SpawnPlayer);
+    commands.trigger(SpawnChick);
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct PlayerSpawnPoint;
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
+pub struct ChickSpawnPoint;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct LevelFinishPoint;
@@ -116,7 +129,7 @@ fn exit_playing(mut commands: Commands) {
 fn cleanup_level(
     _trigger: Trigger<CleanupLevel>,
     mut commands: Commands,
-    query: Query<Entity, With<LevelMarker>>,
+    query: Query<Entity, Or<(With<LevelMarker>, With<Player>, With<Chick>)>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
@@ -149,7 +162,7 @@ pub struct Level {
     pub map: String,
     pub size: IVec2,
     pub start_tile: IVec2,
-    pub end_tile: IVec2,
+    pub chick_spawn_points: Vec<IVec2>,
 }
 
 #[derive(Debug, Clone, PartialEq, Reflect, Resource)]
@@ -165,13 +178,19 @@ impl Default for Levels {
                     map: "level1.tmx".to_string(),
                     size: IVec2::new(21, 21),
                     start_tile: IVec2::new(-2, 2),
-                    end_tile: IVec2::new(-7, 6),
+                    chick_spawn_points: vec![IVec2::new(0, -6), IVec2::new(0, 8), IVec2::new(6, 3)],
                 },
-                // Level {
-                //     map: "level2.tmx".to_string(),
-                //     start_tile: Vec2::new(0., 0.),
-                //     end_tile: Vec2::new(10., 10.),
-                // },
+                Level {
+                    map: "level2.tmx".to_string(),
+                    size: IVec2::new(21, 21),
+                    start_tile: IVec2::new(-8, -8),
+                    chick_spawn_points: vec![
+                        IVec2::new(-8, 8),
+                        IVec2::new(8, -5),
+                        IVec2::new(4, 0),
+                        IVec2::new(-6, 1),
+                    ],
+                },
             ],
         }
     }

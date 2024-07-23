@@ -18,14 +18,14 @@
             "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 300.5,
-                "y": 246
+                "x": 344,
+                "y": 244
             }
         }
     },
-    "map.height": 51,
+    "map.height": 21,
     "map.lastUsedFormat": "tmx",
-    "map.width": 51,
+    "map.width": 21,
     "openFiles": [
         "level1.tmx",
         "Tileset1.tsx"
