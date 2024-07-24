@@ -4,12 +4,15 @@ use bevy::prelude::*;
 use bevy_ecs_tiled::prelude::*;
 
 use crate::{
-    game::{frames::ResetFrameCounter, score::Score},
+    game::{
+        frames::ResetFrameCounter,
+        score::{OverallScore, Score, UpdateScore},
+    },
     screen::Screen,
 };
 
 use super::{
-    chick::{Chick, SpawnChick},
+    duckling::{Duckling, SpawnDuckling},
     player::{Player, SpawnPlayer},
 };
 
@@ -29,6 +32,7 @@ pub struct CurrentLevel(i32);
 pub struct StartNewGame;
 
 fn start_new_game(_trigger: Trigger<StartNewGame>, mut commands: Commands) {
+    commands.init_resource::<OverallScore>();
     commands.init_resource::<Levels>();
     commands.insert_resource(CurrentLevel(0));
     commands.trigger(SpawnLevel);
@@ -55,8 +59,9 @@ fn spawn_level(
 
     // Set up score details.
     score.score = 0;
-    score.chicks_total = level.chick_spawn_points.len() as u32;
-    score.chicks_collected = 0;
+    score.ducklings_total = level.duckling_spawn_points.len() as u32;
+    score.ducklings_collected = 0;
+    score.stopwatch.reset();
 
     commands
         .spawn((
@@ -91,9 +96,9 @@ fn spawn_level(
                 },
             ));
 
-            for p in &level.chick_spawn_points {
+            for p in &level.duckling_spawn_points {
                 parent.spawn((
-                    ChickSpawnPoint,
+                    DucklingSpawnPoint,
                     SpatialBundle {
                         transform: Transform::from_xyz(p.x as f32 * 32., p.y as f32 * 32., 0.),
                         ..default()
@@ -104,14 +109,15 @@ fn spawn_level(
 
     commands.trigger(ResetFrameCounter);
     commands.trigger(SpawnPlayer);
-    commands.trigger(SpawnChick);
+    commands.trigger(SpawnDuckling);
+    commands.trigger(UpdateScore);
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct PlayerSpawnPoint;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
-pub struct ChickSpawnPoint;
+pub struct DucklingSpawnPoint;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
 pub struct LevelFinishPoint;
@@ -129,7 +135,7 @@ fn exit_playing(mut commands: Commands) {
 fn cleanup_level(
     _trigger: Trigger<CleanupLevel>,
     mut commands: Commands,
-    query: Query<Entity, Or<(With<LevelMarker>, With<Player>, With<Chick>)>>,
+    query: Query<Entity, Or<(With<LevelMarker>, With<Player>, With<Duckling>)>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
@@ -162,7 +168,7 @@ pub struct Level {
     pub map: String,
     pub size: IVec2,
     pub start_tile: IVec2,
-    pub chick_spawn_points: Vec<IVec2>,
+    pub duckling_spawn_points: Vec<IVec2>,
 }
 
 #[derive(Debug, Clone, PartialEq, Reflect, Resource)]
@@ -178,13 +184,17 @@ impl Default for Levels {
                     map: "level1.tmx".to_string(),
                     size: IVec2::new(21, 21),
                     start_tile: IVec2::new(-2, 2),
-                    chick_spawn_points: vec![IVec2::new(0, -6), IVec2::new(0, 8), IVec2::new(6, 3)],
+                    duckling_spawn_points: vec![
+                        IVec2::new(0, -6),
+                        IVec2::new(0, 8),
+                        IVec2::new(6, 3),
+                    ],
                 },
                 Level {
                     map: "level2.tmx".to_string(),
                     size: IVec2::new(21, 21),
                     start_tile: IVec2::new(-8, -8),
-                    chick_spawn_points: vec![
+                    duckling_spawn_points: vec![
                         IVec2::new(-8, 8),
                         IVec2::new(8, -5),
                         IVec2::new(4, 0),

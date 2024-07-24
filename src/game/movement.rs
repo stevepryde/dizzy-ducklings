@@ -16,9 +16,9 @@ use crate::AppSet;
 
 use super::{
     frames::FrameCounter,
-    score::ChickCollected,
+    score::DucklingCollected,
     spawn::{
-        chick::Chick,
+        duckling::Duckling,
         level::{EndLevel, LevelFinishPoint, LevelMarker},
         player::{IsOnGround, Player, SpriteMarker, Velocity},
     },
@@ -206,15 +206,15 @@ fn read_character_controller_collisions(
         &mut Transform,
         &KinematicCharacterControllerOutput,
     )>,
-    colliders: Query<(&GlobalTransform, &Collider, Option<&Chick>)>,
+    colliders: Query<(&GlobalTransform, &Collider, Option<&Duckling>)>,
 ) {
     for (global_transform, mut transform, output) in character_controller_outputs.iter_mut() {
         for collision in &output.collisions {
             // move the ball away from the collision.
-            if let Ok((collider_tf, _collider, is_chick)) = colliders.get(collision.entity) {
-                if is_chick.is_some() {
-                    // Collect chick.
-                    commands.trigger(ChickCollected(collision.entity));
+            if let Ok((collider_tf, _collider, is_duckling)) = colliders.get(collision.entity) {
+                if is_duckling.is_some() {
+                    // Collect Duckling.
+                    commands.trigger(DucklingCollected(collision.entity));
                 } else {
                     let delta = global_transform.translation() - collider_tf.translation();
                     let distance = delta.length();

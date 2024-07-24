@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "level1.tmx",
+    "activeFile": "level2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -21,6 +21,14 @@
                 "x": 344,
                 "y": 244
             }
+        },
+        "level2.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 363.99999999999994,
+                "y": 380
+            }
         }
     },
     "map.height": 21,
@@ -28,11 +36,13 @@
     "map.width": 21,
     "openFiles": [
         "level1.tmx",
-        "Tileset1.tsx"
+        "Tileset1.tsx",
+        "level2.tmx"
     ],
     "project": "wheel.tiled-project",
     "recentFiles": [
+        "level1.tmx",
         "Tileset1.tsx",
-        "level1.tmx"
+        "level2.tmx"
     ]
 }

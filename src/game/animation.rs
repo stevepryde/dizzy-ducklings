@@ -21,7 +21,7 @@ pub(super) fn plugin(app: &mut App) {
             (
                 update_animation_movement,
                 update_animation_atlas,
-                trigger_step_sfx,
+                animate_sprite,
             )
                 .chain()
                 .in_set(AppSet::Update),
@@ -31,20 +31,18 @@ pub(super) fn plugin(app: &mut App) {
 
 /// Update the sprite direction and animation state (idling/walking).
 fn update_animation_movement(
-    mut player_query: Query<(&MovementController, &mut Sprite, &mut PlayerAnimation)>,
+    mut anim_query: Query<(&Parent, &mut PlayerAnimation)>,
+    player_query: Query<&MovementController>,
 ) {
-    for (controller, mut sprite, mut animation) in &mut player_query {
-        let dx = controller.0.x;
-        if dx != 0.0 {
-            sprite.flip_x = dx < 0.0;
+    for (parent, mut animation) in &mut anim_query {
+        if let Ok(controller) = player_query.get(parent.get()) {
+            let animation_state = if controller.0 == Vec2::ZERO {
+                PlayerAnimationState::Idling
+            } else {
+                PlayerAnimationState::Walking
+            };
+            animation.update_state(animation_state);
         }
-
-        let animation_state = if controller.0 == Vec2::ZERO {
-            PlayerAnimationState::Idling
-        } else {
-            PlayerAnimationState::Walking
-        };
-        animation.update_state(animation_state);
     }
 }
 
@@ -65,7 +63,7 @@ fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)
 }
 
 /// If the player is moving, play a step sound effect synchronized with the animation.
-fn trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimation>) {
+fn _trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimation>) {
     for animation in &mut step_query {
         if animation.state == PlayerAnimationState::Walking
             && animation.changed()
@@ -156,6 +154,54 @@ impl PlayerAnimation {
         match self.state {
             PlayerAnimationState::Idling => self.frame,
             PlayerAnimationState::Walking => 6 + self.frame,
+        }
+    }
+}
+
+#[derive(Component)]
+pub enum AnimationSequence {
+    Loop { first: usize, last: usize },
+}
+
+impl AnimationSequence {
+    pub fn loop_forwards(first: usize, last: usize) -> Self {
+        AnimationSequence::Loop { first, last }
+    }
+
+    // pub fn start_index(&self) -> usize {
+    //     match self {
+    //         AnimationSequence::Loop { first, .. } => *first,
+    //     }
+    // }
+
+    pub fn next_index(&mut self, atlas_index: usize) -> usize {
+        match self {
+            AnimationSequence::Loop { first, last } => {
+                if atlas_index == *last {
+                    *first
+                } else {
+                    atlas_index + 1
+                }
+            }
+        }
+    }
+}
+
+#[derive(Component, Deref, DerefMut)]
+pub struct AnimationTimer(pub Timer);
+
+pub fn animate_sprite(
+    time: Res<Time>,
+    mut query: Query<(
+        &mut AnimationSequence,
+        &mut AnimationTimer,
+        &mut TextureAtlas,
+    )>,
+) {
+    for (mut seq, mut timer, mut atlas) in &mut query {
+        timer.tick(time.delta());
+        if timer.just_finished() {
+            atlas.index = seq.next_index(atlas.index);
         }
     }
 }

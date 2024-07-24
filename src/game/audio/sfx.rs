@@ -26,6 +26,7 @@ fn play_sfx(
 }
 
 /// Trigger this event to play a single sound effect.
+#[allow(dead_code)]
 #[derive(Event)]
 pub enum PlaySfx {
     Key(SfxKey),
