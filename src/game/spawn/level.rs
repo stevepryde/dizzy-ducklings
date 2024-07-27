@@ -9,6 +9,7 @@ use crate::{
         score::{OverallScore, Score, UpdateScore},
     },
     screen::Screen,
+    systems::fade::{FadeCompleted, FadeIn, FadeOut},
 };
 
 use super::{
@@ -17,12 +18,58 @@ use super::{
 };
 
 pub(super) fn plugin(app: &mut App) {
+    app.init_state::<LevelState>();
     app.observe(start_new_game);
     app.observe(spawn_level);
     app.observe(cleanup_level);
-    app.observe(end_level);
+    app.observe(on_end_level);
     app.observe(on_game_completed);
+    app.add_systems(Update, on_fade_completed.run_if(in_state(Screen::Playing)));
     app.add_systems(OnExit(Screen::Playing), exit_playing);
+}
+
+#[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
+enum LevelState {
+    #[default]
+    Inactive,
+    EndLevelFadeOut,
+    StartLevelFadeIn,
+    Active,
+}
+
+fn on_fade_completed(
+    mut events: EventReader<FadeCompleted>,
+    mut commands: Commands,
+    mut level: ResMut<CurrentLevel>,
+    levels: Res<Levels>,
+    state: Res<State<LevelState>>,
+    mut next_state: ResMut<NextState<LevelState>>,
+) {
+    for _ in events.read() {
+        match state.get() {
+            LevelState::EndLevelFadeOut => {
+                commands.trigger(CleanupLevel);
+
+                level.0 += 1;
+                match levels.current(*level) {
+                    Some(_) => {
+                        commands.trigger(SpawnLevel);
+                        commands.trigger(FadeIn { duration: 0.5 });
+                        next_state.set(LevelState::StartLevelFadeIn);
+                    }
+                    None => {
+                        // TODO: finish the game!
+                        commands.trigger(GameCompleted);
+                        return;
+                    }
+                }
+            }
+            LevelState::StartLevelFadeIn => {
+                next_state.set(LevelState::Active);
+            }
+            _ => {}
+        }
+    }
 }
 
 #[derive(Resource, Clone, Copy, Debug)]
@@ -35,6 +82,7 @@ fn start_new_game(_trigger: Trigger<StartNewGame>, mut commands: Commands) {
     commands.init_resource::<OverallScore>();
     commands.init_resource::<Levels>();
     commands.insert_resource(CurrentLevel(0));
+    commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
 }
 
@@ -65,6 +113,7 @@ fn spawn_level(
 
     commands
         .spawn((
+            Name::new("Level"),
             LevelMarker,
             SpatialBundle {
                 transform: Transform::from_xyz(0., 0., 0.0),
@@ -142,25 +191,13 @@ fn cleanup_level(
     }
 }
 
-fn end_level(
+fn on_end_level(
     _trigger: Trigger<EndLevel>,
-    mut level: ResMut<CurrentLevel>,
-    levels: Res<Levels>,
     mut commands: Commands,
+    mut next_state: ResMut<NextState<LevelState>>,
 ) {
-    commands.trigger(CleanupLevel);
-
-    level.0 += 1;
-    match levels.current(*level) {
-        Some(_) => {
-            commands.trigger(SpawnLevel);
-        }
-        None => {
-            // TODO: finish the game!
-            commands.trigger(GameCompleted);
-            return;
-        }
-    }
+    commands.trigger(FadeOut { duration: 0.5 });
+    next_state.set(LevelState::EndLevelFadeOut);
 }
 
 #[derive(Debug, Clone, PartialEq, Reflect)]

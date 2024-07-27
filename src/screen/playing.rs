@@ -3,8 +3,9 @@
 use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 
 use super::Screen;
-use crate::game::{
-    assets::SoundtrackKey, audio::soundtrack::PlaySoundtrack, spawn::level::StartNewGame,
+use crate::{
+    game::{assets::SoundtrackKey, audio::soundtrack::PlaySoundtrack, spawn::level::StartNewGame},
+    systems::fade::FadeIn,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -21,6 +22,7 @@ pub(super) fn plugin(app: &mut App) {
 fn enter_playing(mut commands: Commands) {
     commands.trigger(StartNewGame);
     commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
+    commands.trigger(FadeIn { duration: 0.5 })
 }
 
 fn exit_playing(mut commands: Commands) {

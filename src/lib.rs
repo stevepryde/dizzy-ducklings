@@ -2,6 +2,7 @@
 mod dev_tools;
 mod game;
 mod screen;
+mod systems;
 mod ui;
 
 use bevy::{
@@ -65,7 +66,7 @@ impl Plugin for AppPlugin {
             .add_plugins(WorldInspectorPlugin::new());
 
         // Add game plugins.
-        app.add_plugins((game::plugin, screen::plugin, ui::plugin));
+        app.add_plugins((game::plugin, screen::plugin, ui::plugin, systems::plugin));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]

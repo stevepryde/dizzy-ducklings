@@ -6,5 +6,5 @@ use crate::screen::Screen;
 
 pub(super) fn plugin(app: &mut App) {
     // Print state transitions in dev builds
-    app.add_systems(Update, log_transitions::<Screen>);
+    app.add_systems(Update, (log_transitions::<Screen>,));
 }
