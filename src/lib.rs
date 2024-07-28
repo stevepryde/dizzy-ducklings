@@ -67,6 +67,9 @@ impl Plugin for AppPlugin {
             .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0));
 
         #[cfg(feature = "dev")]
+        app.add_plugins(RapierDebugRenderPlugin::default());
+
+        #[cfg(feature = "dev")]
         app.add_plugins(WorldInspectorPlugin::new());
 
         // Add game plugins.

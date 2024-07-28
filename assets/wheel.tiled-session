@@ -19,8 +19,12 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 344,
-                "y": 244
+                "y": 243
             }
+        },
+        "level1.tmx#Tileset1": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
         },
         "level2.tmx": {
             "scale": 0.75,
@@ -29,6 +33,9 @@
                 "x": 363.99999999999994,
                 "y": 380
             }
+        },
+        "level2.tmx#Tileset1": {
+            "dynamicWrapping": true
         }
     },
     "map.height": 21,
