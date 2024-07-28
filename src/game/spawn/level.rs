@@ -35,6 +35,7 @@ enum LevelState {
     EndLevelFadeOut,
     StartLevelFadeIn,
     Active,
+    CompletedFadeOut,
 }
 
 fn on_fade_completed(
@@ -44,6 +45,7 @@ fn on_fade_completed(
     levels: Res<Levels>,
     state: Res<State<LevelState>>,
     mut next_state: ResMut<NextState<LevelState>>,
+    mut next_screen: ResMut<NextState<Screen>>,
 ) {
     for _ in events.read() {
         match state.get() {
@@ -66,6 +68,10 @@ fn on_fade_completed(
             }
             LevelState::StartLevelFadeIn => {
                 next_state.set(LevelState::Active);
+            }
+            LevelState::CompletedFadeOut => {
+                next_screen.set(Screen::GameOver);
+                next_state.set(LevelState::Inactive);
             }
             _ => {}
         }
@@ -252,6 +258,11 @@ impl Levels {
 #[derive(Event, Debug)]
 pub struct GameCompleted;
 
-fn on_game_completed(_trigger: Trigger<GameCompleted>, mut next_screen: ResMut<NextState<Screen>>) {
-    next_screen.set(Screen::Title);
+fn on_game_completed(
+    _trigger: Trigger<GameCompleted>,
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<LevelState>>,
+) {
+    commands.trigger(FadeOut { duration: 0.5 });
+    next_state.set(LevelState::CompletedFadeOut);
 }

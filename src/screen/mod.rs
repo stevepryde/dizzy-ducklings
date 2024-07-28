@@ -1,6 +1,7 @@
 //! The game's main screen states and transitions between them.
 
 mod credits;
+mod gameover;
 mod loading;
 mod playing;
 mod splash;
@@ -18,6 +19,7 @@ pub(super) fn plugin(app: &mut App) {
         title::plugin,
         credits::plugin,
         playing::plugin,
+        gameover::plugin,
     ));
 }
 
@@ -30,4 +32,5 @@ pub enum Screen {
     Title,
     Credits,
     Playing,
+    GameOver,
 }

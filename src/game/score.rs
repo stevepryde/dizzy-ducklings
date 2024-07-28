@@ -6,6 +6,8 @@ use crate::{game::spawn::level::EndLevel, AppSet};
 
 use super::spawn::{duckling::Duckling, level::SpawnLevel};
 
+const SCORE_COLOR: Color = Color::linear_rgb(0.8, 0.8, 0.4);
+
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<Score>();
     app.init_resource::<OverallScore>();
@@ -20,7 +22,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Resource, Clone, Debug, Default)]
 pub struct OverallScore {
-    pub total_seconds: u32,
+    pub total_seconds: f32,
 }
 
 #[derive(Resource, Clone, Debug)]
@@ -102,7 +104,10 @@ fn on_start_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         TextBundle {
             text: Text::from_section(
                 "Ducklings collected: 0 / 1".to_string(),
-                TextStyle::default(),
+                TextStyle {
+                    color: SCORE_COLOR,
+                    ..default()
+                },
             ),
             style: Style {
                 position_type: PositionType::Absolute,
@@ -117,7 +122,13 @@ fn on_start_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
 
     commands.spawn((
         TextBundle {
-            text: Text::from_section("Seconds elapsed: 0".to_string(), TextStyle::default()),
+            text: Text::from_section(
+                "Seconds elapsed: 0".to_string(),
+                TextStyle {
+                    color: SCORE_COLOR,
+                    ..default()
+                },
+            ),
             style: Style {
                 position_type: PositionType::Absolute,
                 left: Val::Px(10.0),
@@ -147,7 +158,7 @@ fn carry_over_stopwatch(
     score: Res<Score>,
     mut overall_score: ResMut<OverallScore>,
 ) {
-    overall_score.total_seconds += score.stopwatch.elapsed().as_secs() as u32;
+    overall_score.total_seconds += score.stopwatch.elapsed().as_secs_f32();
 }
 
 fn resume_stopwatch(
@@ -157,5 +168,5 @@ fn resume_stopwatch(
 ) {
     score
         .stopwatch
-        .set_elapsed(Duration::from_secs(overall_score.total_seconds as u64));
+        .set_elapsed(Duration::from_secs_f32(overall_score.total_seconds));
 }

@@ -15,6 +15,7 @@ pub const TERMINAL_VELOCITY: f32 = -420.0;
 use crate::AppSet;
 
 use super::{
+    audio::sfx::PlaySfx,
     frames::FrameCounter,
     score::DucklingCollected,
     spawn::{
@@ -105,6 +106,7 @@ pub struct Movement {
 
 fn apply_movement(
     time: Res<Time>,
+    mut commands: Commands,
     mut movement_query: Query<(
         &MovementController,
         &Movement,
@@ -123,6 +125,7 @@ fn apply_movement(
             // Jumping.
             if is_on_ground.is_on_ground {
                 velocity.y = movement.jump_speed;
+                commands.trigger(PlaySfx::Jump);
             }
         }
 

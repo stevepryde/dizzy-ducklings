@@ -4,7 +4,11 @@ use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 
 use super::Screen;
 use crate::{
-    game::{assets::SoundtrackKey, audio::soundtrack::PlaySoundtrack, spawn::level::StartNewGame},
+    game::{
+        assets::SoundtrackKey,
+        audio::soundtrack::PlaySoundtrack,
+        spawn::level::{EndLevel, StartNewGame},
+    },
     systems::fade::FadeIn,
 };
 
@@ -30,6 +34,7 @@ fn exit_playing(mut commands: Commands) {
     commands.trigger(PlaySoundtrack::Disable);
 }
 
-fn return_to_title_screen(mut next_screen: ResMut<NextState<Screen>>) {
+fn return_to_title_screen(mut commands: Commands, mut next_screen: ResMut<NextState<Screen>>) {
+    commands.trigger(EndLevel);
     next_screen.set(Screen::Title);
 }

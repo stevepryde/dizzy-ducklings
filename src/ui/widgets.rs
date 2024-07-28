@@ -14,6 +14,8 @@ pub trait Widgets {
 
     /// Spawn a simple text label.
     fn label(&mut self, text: impl Into<String>) -> EntityCommands;
+
+    fn big_label(&mut self, text: impl Into<String>) -> EntityCommands;
 }
 
 impl<T: Spawn> Widgets for T {
@@ -28,6 +30,7 @@ impl<T: Spawn> Widgets for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
+                border_radius: BorderRadius::all(Val::Px(10.0)),
                 background_color: BackgroundColor(NODE_BACKGROUND),
                 ..default()
             },
@@ -104,6 +107,35 @@ impl<T: Spawn> Widgets for T {
                     text,
                     TextStyle {
                         font_size: 24.0,
+                        color: LABEL_TEXT,
+                        ..default()
+                    },
+                ),
+            ));
+        });
+        entity
+    }
+
+    fn big_label(&mut self, text: impl Into<String>) -> EntityCommands {
+        let mut entity = self.spawn((
+            Name::new("Label"),
+            NodeBundle {
+                style: Style {
+                    width: Px(500.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+        entity.with_children(|children| {
+            children.spawn((
+                Name::new("Label Text"),
+                TextBundle::from_section(
+                    text,
+                    TextStyle {
+                        font_size: 48.0,
                         color: LABEL_TEXT,
                         ..default()
                     },
