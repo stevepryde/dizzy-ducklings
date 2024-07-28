@@ -1,6 +1,9 @@
 use bevy::{audio::PlaybackMode, prelude::*};
 
-use crate::game::assets::{HandleMap, SfxKey};
+use crate::game::{
+    assets::{HandleMap, SfxKey},
+    settings::GameSettings,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(play_sfx);
@@ -9,8 +12,13 @@ pub(super) fn plugin(app: &mut App) {
 fn play_sfx(
     trigger: Trigger<PlaySfx>,
     mut commands: Commands,
+    settings: Res<GameSettings>,
     sfx_handles: Res<HandleMap<SfxKey>>,
 ) {
+    if !settings.sound_enabled {
+        return;
+    }
+
     let sfx_key = match trigger.event() {
         PlaySfx::Key(key) => *key,
         PlaySfx::Jump => SfxKey::Jump,

@@ -13,8 +13,10 @@ use bevy::{
 };
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+#[cfg(feature = "dev")]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
+use game::settings::GameSettings;
 
 pub struct AppPlugin;
 
@@ -28,6 +30,7 @@ impl Plugin for AppPlugin {
 
         // Spawn the main camera.
         app.add_systems(Startup, spawn_camera);
+        app.init_resource::<GameSettings>();
 
         // Add Bevy plugins.
         app.add_plugins(
@@ -61,9 +64,10 @@ impl Plugin for AppPlugin {
         // Add other plugins.
         app.add_plugins(TilemapPlugin)
             .add_plugins(TiledMapPlugin)
-            .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0))
-            // .add_plugins(RapierDebugRenderPlugin::default())
-            .add_plugins(WorldInspectorPlugin::new());
+            .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0));
+
+        #[cfg(feature = "dev")]
+        app.add_plugins(WorldInspectorPlugin::new());
 
         // Add game plugins.
         app.add_plugins((game::plugin, screen::plugin, ui::plugin, systems::plugin));

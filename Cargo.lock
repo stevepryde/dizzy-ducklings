@@ -367,26 +367,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy-tnua-physics-integration-layer"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7baa47d51ffdd74afb641bd0811455e6648bb4f4c039afa52be0849bc202cb4f"
-dependencies = [
- "bevy",
-]
-
-[[package]]
-name = "bevy-tnua-rapier2d"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff8e1b7eea539ae9bc4b5b03954dc2997ce8ecf249b3106cfd42fedab2777236"
-dependencies = [
- "bevy",
- "bevy-tnua-physics-integration-layer",
- "bevy_rapier2d",
-]
-
-[[package]]
 name = "bevy_a11y"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4773,7 +4753,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
- "bevy-tnua-rapier2d",
  "bevy_ecs_tiled",
  "bevy_ecs_tilemap",
  "bevy_rapier2d",

@@ -10,8 +10,8 @@ bevy = { version = "0.14", features = ["wayland"] }
 bevy_ecs_tiled = { version = "0.3", features = ["rapier"] }
 bevy_ecs_tilemap = "0.14"
 bevy_rapier2d = "0.27"
-bevy-tnua-rapier2d = "0.7"
-bevy-inspector-egui = "0.25.1"
+
+bevy-inspector-egui = { version = "0.25.1", optional = true }
 
 # Disable low-severity logs at compile time for performance.
 log = { version = "0.4", features = [
@@ -22,13 +22,13 @@ rand = "0.8"
 
 [features]
 default = [
-    # Default to a native dev build.
-    "dev_native",
+    
 ]
 dev = [
     # Improve compile times for dev builds by linking Bevy as a dynamic library.
     "bevy/dynamic_linking",
     "bevy/bevy_dev_tools",
+    "bevy-inspector-egui"
 ]
 dev_native = [
     "dev",

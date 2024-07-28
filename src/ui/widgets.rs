@@ -6,6 +6,8 @@ use super::{interaction::InteractionPalette, palette::*};
 
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
+    fn title(&mut self, text: impl Into<String>) -> EntityCommands;
+
     /// Spawn a simple button with text.
     fn button(&mut self, text: impl Into<String>) -> EntityCommands;
 
@@ -19,12 +21,40 @@ pub trait Widgets {
 }
 
 impl<T: Spawn> Widgets for T {
+    fn title(&mut self, text: impl Into<String>) -> EntityCommands {
+        let mut entity = self.spawn((
+            Name::new("Title"),
+            NodeBundle {
+                style: Style {
+                    width: Px(800.0),
+                    height: Px(200.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+
+        entity.with_children(|children| {
+            children.spawn(TextBundle::from_section(
+                text,
+                TextStyle {
+                    font_size: 72.0,
+                    color: TITLE_TEXT,
+                    ..default()
+                },
+            ));
+        });
+        entity
+    }
+
     fn button(&mut self, text: impl Into<String>) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Button"),
             ButtonBundle {
                 style: Style {
-                    width: Px(200.0),
+                    width: Px(300.0),
                     height: Px(65.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,

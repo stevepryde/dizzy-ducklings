@@ -9,6 +9,7 @@ pub mod camera;
 pub mod frames;
 mod movement;
 pub mod score;
+pub mod settings;
 pub mod spawn;
 
 pub(super) fn plugin(app: &mut App) {

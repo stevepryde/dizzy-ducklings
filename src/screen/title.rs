@@ -1,9 +1,13 @@
 //! The title screen that appears when the game starts.
 
-use bevy::{dev_tools::states::log_transitions, prelude::*};
+use bevy::prelude::*;
+
+#[cfg(feature = "dev")]
+use bevy::dev_tools::states::log_transitions;
 
 use super::Screen;
 use crate::{
+    game::settings::{GameSettings, ToggleSound},
     systems::fade::{FadeCompleted, FadeIn, FadeOut},
     ui::prelude::*,
 };
@@ -19,6 +23,8 @@ pub(super) fn plugin(app: &mut App) {
 
     #[cfg(feature = "dev")]
     app.add_systems(Update, log_transitions::<TitleState>);
+
+    app.observe(toggle_sound);
 }
 
 #[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
@@ -70,6 +76,7 @@ fn on_fade_completed(
 #[reflect(Component)]
 enum TitleAction {
     Play,
+    SoundToggle,
     Credits,
     /// Exit doesn't work well with embedded applications.
     #[cfg(not(target_family = "wasm"))]
@@ -81,7 +88,11 @@ fn enter_title(mut commands: Commands) {
         .ui_root()
         .insert(StateScoped(Screen::Title))
         .with_children(|children| {
+            children.title("DIZZY DUCKLINGS");
             children.button("Play").insert(TitleAction::Play);
+            children
+                .button("Sound: ON")
+                .insert((TitleAction::SoundToggle, SoundButton));
             children.button("Credits").insert(TitleAction::Credits);
 
             #[cfg(not(target_family = "wasm"))]
@@ -91,6 +102,7 @@ fn enter_title(mut commands: Commands) {
 
 fn handle_title_action(
     mut commands: Commands,
+    mut settings: ResMut<GameSettings>,
     mut next_screen: ResMut<NextState<Screen>>,
     mut next_state: ResMut<NextState<TitleState>>,
     mut button_query: InteractionQuery<&TitleAction>,
@@ -102,6 +114,10 @@ fn handle_title_action(
                     next_state.set(TitleState::ActionPlayFadingOut);
                     commands.trigger(FadeOut { duration: 0.5 });
                 }
+                TitleAction::SoundToggle => {
+                    settings.sound_enabled = !settings.sound_enabled;
+                    commands.trigger(ToggleSound);
+                }
                 TitleAction::Credits => next_screen.set(Screen::Credits),
 
                 #[cfg(not(target_family = "wasm"))]
@@ -109,6 +125,28 @@ fn handle_title_action(
                     next_state.set(TitleState::ActionExitFadingOut);
                     commands.trigger(FadeOut { duration: 0.5 });
                 }
+            }
+        }
+    }
+}
+
+#[derive(Component)]
+struct SoundButton;
+
+fn toggle_sound(
+    _trigger: Trigger<ToggleSound>,
+    settings: Res<GameSettings>,
+    mut query: Query<(&Children, &SoundButton)>,
+    mut text_query: Query<&mut Text>,
+) {
+    for (children, _) in &mut query.iter_mut() {
+        for child in children {
+            if let Ok(mut text) = text_query.get_mut(*child) {
+                text.sections[0].value = if settings.sound_enabled {
+                    "Sound: ON".to_string()
+                } else {
+                    "Sound: OFF".to_string()
+                };
             }
         }
     }
