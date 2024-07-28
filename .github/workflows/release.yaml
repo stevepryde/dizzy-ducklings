@@ -17,12 +17,12 @@ on:
 # Configure constants for this workflow.
 env:
   # The base filename of the binary produced by `cargo build`.
-  BINARY: wheel-escape
+  BINARY: dizzy-ducklings
   # The name to use for the packaged application produced by this workflow.
-  PACKAGE_NAME: wheel-escape
+  PACKAGE_NAME: dizzy-ducklings
   # The itch.io page to upload to, in the format: `user-name/project-name`.
   # Comment this out to disable.
-  ITCH_TARGET: inspiredjourneys/wheel-escape
+  ITCH_TARGET: inspiredjourneys/dizzy-ducklings
   # The organization or author that owns the rights to the game.
   OWNER: inspiredjourneys
   # The path to the assets directory.

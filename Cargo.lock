@@ -1802,6 +1802,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 
 [[package]]
+name = "dizzy-ducklings"
+version = "0.2.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_ecs_tiled",
+ "bevy_ecs_tilemap",
+ "bevy_rapier2d",
+ "log",
+ "rand",
+]
+
+[[package]]
 name = "dlib"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4745,19 +4758,6 @@ dependencies = [
  "bitflags 2.6.0",
  "js-sys",
  "web-sys",
-]
-
-[[package]]
-name = "wheel-escape"
-version = "0.2.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy_ecs_tiled",
- "bevy_ecs_tilemap",
- "bevy_rapier2d",
- "log",
- "rand",
 ]
 
 [[package]]
