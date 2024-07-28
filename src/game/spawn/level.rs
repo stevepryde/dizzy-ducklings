@@ -132,7 +132,6 @@ fn spawn_level(
                 tiled_settings: TiledMapSettings {
                     collision_layer_names: ObjectNames::None,
                     collision_object_names: ObjectNames::All,
-                    ..default()
                 },
                 transform: Transform::from_xyz(-mapx, -mapy, 0.0),
                 ..Default::default()

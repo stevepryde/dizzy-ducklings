@@ -130,10 +130,8 @@ fn apply_movement(
         }
 
         // Y velocity does, but only up to terminal velocity.
-        if is_on_ground.is_on_ground {
-            if velocity.y < 0.0 {
-                velocity.y = 0.0;
-            }
+        if is_on_ground.is_on_ground && velocity.y < 0.0 {
+            velocity.y = 0.0;
         }
 
         velocity.y += GRAVITY * time.delta_seconds();
@@ -232,8 +230,6 @@ fn read_character_controller_collisions(
     }
 }
 
-/// The value [`PhysicalTranslation`] had in the last fixed timestep.
-/// Used for interpolation in the `update_rendered_transform` system.
 #[derive(Debug, Component, Clone, Copy, PartialEq, Default, Deref, DerefMut)]
 pub struct PreviousPhysicalTranslation(pub Vec2);
 
