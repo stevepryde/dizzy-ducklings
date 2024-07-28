@@ -643,9 +643,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_ecs_tiled"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab8ef1649a631f081e4b6e04766e6622bd9d101b5d8f7cbd79a8b420401b27a8"
+checksum = "e9fe282cb795bfcca9fb1b810a7d4a4a51b06167c234261921686fa8dab76e76"
 dependencies = [
  "bevy",
  "bevy_ecs_tilemap",
@@ -1803,7 +1803,7 @@ checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 
 [[package]]
 name = "dizzy-ducklings"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
@@ -2770,9 +2770,9 @@ dependencies = [
 
 [[package]]
 name = "matrixmultiply"
-version = "0.3.8"
+version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7574c1cf36da4798ab73da5b215bbf444f50718207754cb522201d78d1cd0ff2"
+checksum = "9380b911e3e96d10c1f415da0876389aaf1b56759054eeb0de7df940c456ba1a"
 dependencies = [
  "autocfg",
  "rawpointer",
