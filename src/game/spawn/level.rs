@@ -24,6 +24,7 @@ pub(super) fn plugin(app: &mut App) {
     app.observe(cleanup_level);
     app.observe(on_end_level);
     app.observe(on_game_completed);
+    app.add_systems(Update, on_level_added.run_if(in_state(Screen::Playing)));
     app.add_systems(Update, on_fade_completed.run_if(in_state(Screen::Playing)));
     app.add_systems(OnExit(Screen::Playing), exit_playing);
 }
@@ -95,6 +96,9 @@ fn start_new_game(_trigger: Trigger<StartNewGame>, mut commands: Commands) {
 #[derive(Event, Debug)]
 pub struct SpawnLevel;
 
+#[derive(Component, Debug)]
+pub struct LevelLoaded;
+
 #[derive(Component)]
 pub struct LevelMarker;
 
@@ -161,10 +165,31 @@ fn spawn_level(
             }
         });
 
-    commands.trigger(ResetFrameCounter);
-    commands.trigger(SpawnPlayer);
-    commands.trigger(SpawnDuckling);
+    log::warn!("SPAWNED LEVEL");
+
+    // commands.trigger(ResetFrameCounter);
     commands.trigger(UpdateScore);
+}
+
+fn on_level_added(
+    mut events: EventReader<AssetEvent<TiledMap>>,
+    mut commands: Commands,
+    map: Query<(Entity, &Handle<TiledMap>), Without<LevelLoaded>>,
+) {
+    for event in events.read() {
+        if let AssetEvent::LoadedWithDependencies { id } = event {
+            for (entity, handle) in map.iter() {
+                if handle.id() == *id {
+                    log::warn!("MAP LOADED");
+                    commands.entity(entity).insert(LevelLoaded);
+                    commands.trigger(SpawnPlayer);
+                    commands.trigger(SpawnDuckling);
+                    commands.trigger(ResetFrameCounter);
+                    return;
+                }
+            }
+        }
+    }
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]

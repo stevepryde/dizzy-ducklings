@@ -643,9 +643,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_ecs_tiled"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab8ef1649a631f081e4b6e04766e6622bd9d101b5d8f7cbd79a8b420401b27a8"
+version = "0.3.2"
 dependencies = [
  "bevy",
  "bevy_ecs_tilemap",
@@ -1803,7 +1801,7 @@ checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 
 [[package]]
 name = "dizzy-ducklings"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
