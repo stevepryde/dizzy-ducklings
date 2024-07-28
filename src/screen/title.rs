@@ -64,6 +64,7 @@ fn on_fade_completed(
                 next_screen.set(Screen::Playing);
                 next_state.set(TitleState::Inactive);
             }
+            #[cfg(not(target_family = "wasm"))]
             TitleState::ActionExitFadingOut => {
                 app_exit.send(AppExit::Success);
             }
