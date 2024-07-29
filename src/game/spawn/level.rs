@@ -3,6 +3,9 @@
 use bevy::prelude::*;
 use bevy_ecs_tiled::prelude::*;
 
+#[cfg(feature = "dev")]
+use bevy::dev_tools::states::log_transitions;
+
 use crate::{
     game::{
         frames::ResetFrameCounter,
@@ -27,6 +30,9 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, on_level_added.run_if(in_state(Screen::Playing)));
     app.add_systems(Update, on_fade_completed.run_if(in_state(Screen::Playing)));
     app.add_systems(OnExit(Screen::Playing), exit_playing);
+
+    #[cfg(feature = "dev")]
+    app.add_systems(Update, log_transitions::<LevelState>);
 }
 
 #[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
@@ -85,9 +91,15 @@ pub struct CurrentLevel(i32);
 #[derive(Event, Debug)]
 pub struct StartNewGame;
 
-fn start_new_game(_trigger: Trigger<StartNewGame>, mut commands: Commands) {
-    commands.init_resource::<OverallScore>();
-    commands.init_resource::<Levels>();
+fn start_new_game(
+    _trigger: Trigger<StartNewGame>,
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<LevelState>>,
+) {
+    next_state.set(LevelState::StartLevelFadeIn);
+    commands.insert_resource(OverallScore::default());
+    commands.insert_resource(Score::default());
+    commands.insert_resource(Levels::default());
     commands.insert_resource(CurrentLevel(4));
     commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
@@ -304,8 +316,8 @@ impl Default for Levels {
                         IVec2::new(5, -2),
                         IVec2::new(-5, 1),
                         IVec2::new(5, 1),
-                        IVec2::new(-9, 5),
-                        IVec2::new(9, -5),
+                        IVec2::new(-9, 4),
+                        IVec2::new(9, -4),
                         IVec2::new(1, 8),
                         IVec2::new(-2, -4),
                         IVec2::new(2, -4),
