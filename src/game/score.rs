@@ -162,7 +162,7 @@ fn carry_over_stopwatch(
     score: Res<Score>,
     mut overall_score: ResMut<OverallScore>,
 ) {
-    overall_score.total_seconds += score.stopwatch.elapsed().as_secs_f32();
+    overall_score.total_seconds = score.stopwatch.elapsed().as_secs_f32();
 }
 
 fn resume_stopwatch(
