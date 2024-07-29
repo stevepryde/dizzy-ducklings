@@ -57,6 +57,7 @@ pub enum SfxKey {
     ButtonHover,
     ButtonPress,
     Jump,
+    CollectDuckling,
 }
 
 impl AssetKey for SfxKey {
@@ -76,6 +77,10 @@ impl FromWorld for HandleMap<SfxKey> {
                 asset_server.load("audio/sfx/button_press.ogg"),
             ),
             (SfxKey::Jump, asset_server.load("audio/sfx/jump.ogg")),
+            (
+                SfxKey::CollectDuckling,
+                asset_server.load("audio/sfx/collect.ogg"),
+            ),
         ]
         .into()
     }

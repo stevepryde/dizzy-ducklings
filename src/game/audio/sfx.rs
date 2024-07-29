@@ -22,6 +22,7 @@ fn play_sfx(
     let sfx_key = match trigger.event() {
         PlaySfx::Key(key) => *key,
         PlaySfx::Jump => SfxKey::Jump,
+        PlaySfx::CollectDuckling => SfxKey::CollectDuckling,
     };
     commands.spawn(AudioSourceBundle {
         source: sfx_handles[&sfx_key].clone_weak(),
@@ -38,4 +39,5 @@ fn play_sfx(
 pub enum PlaySfx {
     Key(SfxKey),
     Jump,
+    CollectDuckling,
 }

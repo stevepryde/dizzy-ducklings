@@ -4,7 +4,10 @@ use bevy::{prelude::*, time::Stopwatch};
 
 use crate::{game::spawn::level::EndLevel, AppSet};
 
-use super::spawn::{duckling::Duckling, level::SpawnLevel};
+use super::{
+    audio::sfx::PlaySfx,
+    spawn::{duckling::Duckling, level::SpawnLevel},
+};
 
 const SCORE_COLOR: Color = Color::linear_rgb(0.8, 0.8, 0.4);
 
@@ -58,6 +61,7 @@ fn on_duckling_collected(
         score.ducklings_collected += 1;
         commands.entity(trigger.event().0).despawn_recursive();
         commands.trigger(UpdateScore);
+        commands.trigger(PlaySfx::CollectDuckling);
 
         if score.ducklings_collected == score.ducklings_total {
             commands.trigger(EndLevel);
