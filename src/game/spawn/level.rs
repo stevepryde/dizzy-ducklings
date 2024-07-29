@@ -88,7 +88,7 @@ pub struct StartNewGame;
 fn start_new_game(_trigger: Trigger<StartNewGame>, mut commands: Commands) {
     commands.init_resource::<OverallScore>();
     commands.init_resource::<Levels>();
-    commands.insert_resource(CurrentLevel(0));
+    commands.insert_resource(CurrentLevel(3));
     commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
 }
@@ -266,6 +266,33 @@ impl Default for Levels {
                         IVec2::new(8, -5),
                         IVec2::new(4, 0),
                         IVec2::new(-6, 1),
+                    ],
+                },
+                Level {
+                    map: "level3.tmx".to_string(),
+                    size: IVec2::new(21, 21),
+                    start_tile: IVec2::new(-2, -3),
+                    duckling_spawn_points: vec![
+                        IVec2::new(-8, 0),
+                        IVec2::new(8, 0),
+                        IVec2::new(8, 8),
+                        IVec2::new(-8, -8),
+                        IVec2::new(8, -8),
+                        IVec2::new(-8, 8),
+                    ],
+                },
+                Level {
+                    map: "level4.tmx".to_string(),
+                    size: IVec2::new(21, 21),
+                    start_tile: IVec2::new(5, 5),
+                    duckling_spawn_points: vec![
+                        IVec2::new(-7, -7),
+                        IVec2::new(7, -7),
+                        IVec2::new(-7, 0),
+                        IVec2::new(7, 0),
+                        IVec2::new(0, 7),
+                        IVec2::new(-3, 8),
+                        IVec2::new(3, 8),
                     ],
                 },
             ],
