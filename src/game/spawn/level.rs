@@ -100,7 +100,7 @@ fn start_new_game(
     commands.insert_resource(OverallScore::default());
     commands.insert_resource(Score::default());
     commands.insert_resource(Levels::default());
-    commands.insert_resource(CurrentLevel(7));
+    commands.insert_resource(CurrentLevel(9));
     commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
 }
@@ -377,6 +377,63 @@ impl Default for Levels {
                         IVec2::new(12, -6),
                         IVec2::new(-10, -6),
                         IVec2::new(-11, -10),
+                    ],
+                },
+                Level {
+                    map: "level9.tmx".to_string(),
+                    size: IVec2::new(25, 25),
+                    start_tile: IVec2::new(10, -10),
+                    duckling_spawn_points: vec![
+                        IVec2::new(3, 3),
+                        IVec2::new(-3, 3),
+                        IVec2::new(-3, -3),
+                        IVec2::new(3, -3),
+                        IVec2::new(-10, 0),
+                        IVec2::new(10, 0),
+                        IVec2::new(3, 10),
+                        IVec2::new(-3, -10),
+                        IVec2::new(10, 10),
+                        IVec2::new(-10, -10),
+                        IVec2::new(-10, 10),
+                        IVec2::new(4, 11),
+                        IVec2::new(4, -11),
+                    ],
+                },
+                Level {
+                    map: "level11.tmx".to_string(),
+                    size: IVec2::new(25, 25),
+                    start_tile: IVec2::new(7, 1),
+                    duckling_spawn_points: vec![
+                        IVec2::new(0, 1),
+                        IVec2::new(-1, 1),
+                        IVec2::new(-2, 1),
+                        IVec2::new(-3, 1),
+                        IVec2::new(1, 1),
+                        IVec2::new(2, 1),
+                        IVec2::new(3, 1),
+                        IVec2::new(4, 7),
+                        IVec2::new(5, 7),
+                        IVec2::new(6, 7),
+                        IVec2::new(7, 7),
+                        IVec2::new(8, 7),
+                        IVec2::new(-4, 7),
+                        IVec2::new(-5, 7),
+                        IVec2::new(-6, 7),
+                        IVec2::new(-7, 7),
+                        IVec2::new(-8, 7),
+                        IVec2::new(-4, -5),
+                        IVec2::new(-5, -5),
+                        IVec2::new(-6, -5),
+                        IVec2::new(-7, -5),
+                        IVec2::new(-8, -5),
+                        IVec2::new(4, -5),
+                        IVec2::new(5, -5),
+                        IVec2::new(6, -5),
+                        IVec2::new(7, -5),
+                        IVec2::new(8, -5),
+                        IVec2::new(-11, -11),
+                        IVec2::new(-11, 11),
+                        IVec2::new(11, -11),
                     ],
                 },
             ],
