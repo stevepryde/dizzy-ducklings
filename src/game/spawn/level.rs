@@ -100,7 +100,7 @@ fn start_new_game(
     commands.insert_resource(OverallScore::default());
     commands.insert_resource(Score::default());
     commands.insert_resource(Levels::default());
-    commands.insert_resource(CurrentLevel(9));
+    commands.insert_resource(CurrentLevel(0));
     commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
 }
