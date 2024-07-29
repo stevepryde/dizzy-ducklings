@@ -100,7 +100,7 @@ fn start_new_game(
     commands.insert_resource(OverallScore::default());
     commands.insert_resource(Score::default());
     commands.insert_resource(Levels::default());
-    commands.insert_resource(CurrentLevel(5));
+    commands.insert_resource(CurrentLevel(6));
     commands.trigger(FadeOut { duration: 0.5 });
     commands.trigger(SpawnLevel);
 }
@@ -339,6 +339,24 @@ impl Default for Levels {
                         IVec2::new(0, 11),
                         IVec2::new(13, 1),
                         IVec2::new(3, 7),
+                    ],
+                },
+                Level {
+                    map: "level7.tmx".to_string(),
+                    size: IVec2::new(31, 31),
+                    start_tile: IVec2::new(0, 2),
+                    duckling_spawn_points: vec![
+                        IVec2::new(-3, 0),
+                        IVec2::new(3, 0),
+                        IVec2::new(0, -3),
+                        IVec2::new(-11, 0),
+                        IVec2::new(11, 0),
+                        IVec2::new(0, 11),
+                        IVec2::new(0, -11),
+                        IVec2::new(9, 9),
+                        IVec2::new(9, -9),
+                        IVec2::new(-9, -9),
+                        IVec2::new(-9, 9),
                     ],
                 },
             ],
